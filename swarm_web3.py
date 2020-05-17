@@ -1,11 +1,10 @@
 from web3 import Web3
-
 import json
-
+import random
 infra_url = "HTTP://127.0.0.1:7545"
 web3 = Web3(Web3.HTTPProvider(infra_url))
 print(web3.isConnected())
-
+hash_store=[]
 web3.eth.defaultAccount = web3.eth.accounts[0]
 
 abi = json.loads('[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"GetUserInfo","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"Name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"passedName","type":"string"}],"name":"SetUserInfo","outputs":[],"stateMutability":"nonpayable","type":"function"}]')
@@ -18,5 +17,12 @@ tx_recipt = web3.eth.waitForTransactionReceipt(tx_hash)
 contract = web3.eth.contract(address=tx_recipt.contractAddress, abi=abi)
 print(contract.functions.GetUserInfo().call())
 
+for i in range(0,5):
+    id = str(random.random())
+    tx_hash=contract.functions.SetUserInfo(id).transact() 
+    tx_recipt = web3.eth.waitForTransactionReceipt(tx_hash)
+    hash_store.append(tx_recipt)
+    print(contract.functions.GetUserInfo().call())
 
-
+contract = web3.eth.contract(address=hash_store[0].contractAddress, abi=abi)
+print(contract.functions.GetUserInfo().call())
